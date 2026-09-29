@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Lavender Scrabble 💜</title>
+<link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@500;700&display=swap" rel="stylesheet">
+<style>
+:root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);
+--bg:#efe7fb;--fg:#3b2d55;--card:#fbf8ff;--line:#d3c3ee;--cell:#e4d9f7;--tile:#fff1c9;--tilefg:#5a3d7a;--tw:#ff8fb8;--dw:#ffc4dc;--tl:#7fb3ff;--dl:#bfe0ff;--acc:#8b5fd6;--accfg:#fff}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:linear-gradient(160deg,#f3ecff,#e2d4fa 60%,#f7e8ff) fixed;color:var(--fg);font:16px/1.4 Quicksand,ui-rounded,system-ui,-apple-system,sans-serif;touch-action:manipulation}
+main{max-width:600px;margin:0 auto;padding:12px;position:relative;z-index:1}
+h1{font-size:24px;margin:4px 0 12px;text-align:center;color:var(--acc)}
+.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px;margin-bottom:12px}
+input{font:inherit;padding:10px;border-radius:8px;border:1px solid var(--line);background:var(--bg);color:var(--fg);width:100%;box-sizing:border-box;margin:4px 0 10px}
+button{font:inherit;padding:9px 14px;border-radius:8px;border:1px solid var(--line);background:var(--card);color:var(--fg);cursor:pointer}
+button.p{background:var(--acc);color:var(--accfg);border-color:var(--acc)}
+button:disabled{opacity:.45;cursor:default}
+.row{display:flex;gap:8px;flex-wrap:wrap}
+.sb{display:flex;gap:8px}.sb div{flex:1;text-align:center;padding:8px;border-radius:10px;border:2px solid var(--line);background:var(--card)}
+.sb .on{border-color:var(--acc)}.sb b{display:block;font-size:26px}
+#st{margin:10px 0;font-weight:600;text-align:center}
+#msg{color:var(--tw);min-height:1.4em;text-align:center;font-size:14px}
+#bd{--cs:calc(min(96vw,576px)/15);display:grid;grid-template-columns:repeat(15,1fr);gap:1px;background:var(--line);border:1px solid var(--line);width:100%;max-width:576px;margin:0 auto}
+.c{aspect-ratio:1;background:var(--cell);display:flex;align-items:center;justify-content:center;position:relative;font-weight:700;font-size:calc(var(--cs)*.32);user-select:none;cursor:pointer;color:#fff}
+.c.TW{background:var(--tw)}.c.DW{background:var(--dw);color:#5a1d18}.c.TL{background:var(--tl)}.c.DL{background:var(--dl);color:#173a55}
+.c.t{background:var(--tile);color:var(--tilefg);font-size:calc(var(--cs)*.6);border-radius:3px}
+.c.pd{outline:2px solid var(--acc);outline-offset:-2px;background:#fff3c4}
+.c.bl{color:#8a5a12}
+sub{position:absolute;right:2px;bottom:0;font-size:.42em;font-weight:600}
+#rk{display:flex;gap:6px;justify-content:center;margin:14px 0;min-height:48px;flex-wrap:wrap}
+.rt{width:46px;height:46px;position:relative;display:flex;align-items:center;justify-content:center;font-size:24px;font-weight:700;cursor:pointer;background:var(--tile);color:var(--tilefg);border-radius:4px;box-shadow:0 2px 0 rgba(0,0,0,.25)}
+.rt.sel{outline:3px solid var(--acc);transform:translateY(-4px)}
+#bl{display:flex;flex-wrap:wrap;gap:4px;justify-content:center;margin-bottom:8px}#bl button{padding:6px 9px}
+#log{font-size:14px;margin:0;padding-left:18px}
+.hint{font-size:13px;opacity:.7}
+#bgart{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden}
+#bgart svg{position:absolute;opacity:.45;animation:bob 4s ease-in-out infinite}
+@keyframes bob{50%{transform:translateY(-8px) rotate(4deg)}}
+.tm{font-size:15px;font-variant-numeric:tabular-nums;display:block;opacity:.85}
+.tm.low{color:#e0457b;font-weight:700;animation:bob 1s infinite}
+#toast{position:fixed;left:50%;bottom:calc(16px + env(safe-area-inset-bottom,0px));transform:translate(-50%,30px);opacity:0;transition:.35s;background:#fff;color:var(--fg);border:2px solid var(--acc);border-radius:20px;padding:8px 14px;max-width:88vw;z-index:9;box-shadow:0 6px 20px rgba(90,60,140,.25);display:flex;gap:8px;align-items:center;font-weight:700;pointer-events:none}
+#toast.on{opacity:1;transform:translate(-50%,0)}
+#toast svg{width:36px;height:36px;flex:none}
+.card,.sb div{box-shadow:0 2px 10px rgba(120,90,180,.12)}
+button{border-radius:14px}
+[hidden]{display:none!important}
+</style></head><body><div id="bgart"></div><svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+<symbol id="jp" viewBox="0 0 64 64"><path d="M14 24L18 6l10 11zM50 24L46 6 36 17z" fill="#ff9ec4"/><circle cx="32" cy="36" r="24" fill="#ffc2dc"/><path d="M32 13c-6 0-6 8 0 8s5-5 1-5" fill="none" stroke="#ff8fbb" stroke-width="3" stroke-linecap="round"/><ellipse cx="23" cy="34" rx="6" ry="7.5" fill="#3fb8c9"/><ellipse cx="41" cy="34" rx="6" ry="7.5" fill="#3fb8c9"/><circle cx="21.5" cy="31.5" r="2.4" fill="#fff"/><circle cx="39.5" cy="31.5" r="2.4" fill="#fff"/><path d="M28 45q4 3 8 0" stroke="#c2527f" stroke-width="2" fill="none" stroke-linecap="round"/><ellipse cx="16" cy="44" rx="3" ry="2" fill="#ff8fbb" opacity=".7"/><ellipse cx="48" cy="44" rx="3" ry="2" fill="#ff8fbb" opacity=".7"/></symbol>
+<symbol id="gg" viewBox="0 0 64 64"><path d="M9 26L13 3l15 13zM55 26L51 3 36 16z" fill="#7a58bd"/><ellipse cx="32" cy="38" rx="25" ry="22" fill="#8a68cc"/><path d="M15 31q8-2 13 5-9 3-13-5zM49 31q-8-2-13 5 9 3 13-5z" fill="#ff5f86"/><path d="M16 45Q32 50 48 45 44 58 32 58 20 58 16 45Z" fill="#fff" stroke="#5b3d99" stroke-width="1.5"/><circle cx="11" cy="44" r="3" fill="#ff9ec4" opacity=".7"/><circle cx="53" cy="44" r="3" fill="#ff9ec4" opacity=".7"/></symbol>
+</defs></svg><div id="toast"></div>
+<main>
+<h1>💜 Scrabble for Two 💜</h1>
+
+<section id="lobby" class="card">
+  <label>Your name<input id="nm" maxlength="20" placeholder="e.g. Sam"></label>
+  <label>Secret access code<input id="ac" type="password" autocomplete="off" placeholder="the code I gave you"></label>
+  <label>Room code (make one up — your partner types the same one)<input id="rc" maxlength="24" placeholder="e.g. our-game"></label>
+  <button class="p" id="go">Join / start game</button>
+  <p id="lm" class="hint"></p>
+</section>
+
+<section id="game" hidden>
+  <div class="sb" id="sb"></div>
+  <div id="st"></div>
+  <div class="row" style="justify-content:center"><button class="p" id="again" hidden>Play again 💜</button></div>
+  <div id="bd"></div>
+  <div id="msg"></div>
+  <div id="bl" hidden></div>
+  <div id="rk"></div>
+  <div class="row" style="justify-content:center">
+    <button class="p" id="play">Play word</button>
+    <button id="recall">Recall</button>
+    <button id="shuf">Shuffle</button>
+    <button id="swap">Swap all</button>
+    <button id="pass">Pass</button>
+  </div>
+  <div class="card" style="margin-top:14px">
+    <div class="row" style="justify-content:space-between;align-items:center">
+      <span class="hint" id="bag"></span>
+      <button id="undo">Undo last move</button>
+    </div>
+    <p class="hint">Words aren't auto-checked, so play by honour. If a challenge succeeds, use <b>Undo last move</b>.</p>
+    <ol id="log" reversed></ol>
+  </div>
+</section>
+</main>
+<script>
+const PTS={A:1,B:3,C:3,D:2,E:1,F:4,G:2,H:4,I:1,J:8,K:5,L:1,M:3,N:1,O:1,P:3,Q:10,R:1,S:1,T:1,U:1,V:4,W:4,X:8,Y:4,Z:10};
+const DIST="A9B2C2D4E12F2G3H2I9J1K1L4M2N6O8P2Q1R6S4T6U4V2W2X1Y2Z1?2";
+const pt=ch=>(ch&&ch===ch.toUpperCase()&&PTS[ch])||0;
+const P={};const add=(t,l)=>l.forEach(([r,c])=>P[r*15+c]=t);
+add('TW',[[0,0],[0,7],[0,14],[7,0],[7,14],[14,0],[14,7],[14,14]]);
+for(let i=1;i<=4;i++)[[i,i],[i,14-i],[14-i,i],[14-i,14-i]].forEach(([r,c])=>P[r*15+c]='DW');
+P[112]='DW';
+add('TL',[[1,5],[1,9],[5,1],[5,5],[5,9],[5,13],[9,1],[9,5],[9,9],[9,13],[13,5],[13,9]]);
+add('DL',[[0,3],[0,11],[2,6],[2,8],[3,0],[3,7],[3,14],[6,2],[6,6],[6,8],[6,12],[7,3],[7,11],[8,2],[8,6],[8,8],[8,12],[11,0],[11,7],[11,14],[12,6],[12,8],[14,3],[14,11]]);
+
+const $=id=>document.getElementById(id);
+const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const ls={get(k){try{return localStorage.getItem(k)}catch(e){return null}},set(k,v){try{localStorage.setItem(k,v)}catch(e){}}};
+let code,G=null,me=0,pend=[],sel=null,blankFor=null,TOKEN=null,TIME=9e5,busy=0,off=0,tmo=0,warned=-1;
+
+function shuffle(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
+function newGame(name){
+  const bag=[];DIST.replace(/([A-Z?])(\d+)/g,(_,l,n)=>{for(let i=0;i<+n;i++)bag.push(l)});shuffle(bag);
+  return{b:Array(225).fill(''),bag,r:[bag.splice(0,7),bag.splice(0,7)],sc:[0,0],t:0,ps:0,n:[name,''],log:[],over:false,prev:null,v:0,rem:[TIME,TIME],ts:0,timeup:null,last:null,lastBy:null,bingo:false,hook:false};
+}
+async function act(kind,state){
+  try{const r=await fetch('/api/act',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({room:code,token:TOKEN,kind,state})});
+  if(!r.ok){busy=0;const e=await r.json();setMsg(e.error||'Something went wrong')}}catch(e){busy=0;setMsg('Offline? Reconnecting…')}
+}
+function save(g,kind='move'){if(busy)return;busy=1;g.v=G.v+1;setTimeout(()=>busy=0,2500);return act(kind,g)}
+const snap0=g=>JSON.stringify({...g,prev:null});
+const setMsg=t=>{$('msg').textContent=t||''};
+
+async function join(){
+  const name=$('nm').value.trim(),c=$('rc').value.trim().toLowerCase().replace(/[^a-z0-9-]/g,''),ac=$('ac').value.trim();
+  if(!name||!c||!ac){$('lm').textContent='Fill in your name, room and access code 💜';return}
+  $('lm').textContent='Connecting…';
+  try{
+    const r=await fetch('/api/join',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name,room:c,code:ac})});
+    const j=await r.json();
+    if(!r.ok){$('lm').textContent=j.error||'Could not join';return}
+    code=c;TOKEN=j.token;me=j.seat;TIME=j.time;
+    ls.set('name',name);ls.set('code',c);ls.set('ac',ac);
+    $('lobby').hidden=true;$('game').hidden=false;
+    const es=new EventSource('/api/events?room='+encodeURIComponent(code)+'&token='+TOKEN);
+    es.onmessage=m=>{const d=JSON.parse(m.data);off=d.now-Date.now();
+      if(!d.state){if(me===0)act('init',newGame(''));return}
+      const o=G;G=d.state;if(!o||o.v!==G.v){pend=[];sel=null;blankFor=null;busy=0}
+      react(o,G);render()};
+  }catch(e){$('lm').textContent='Could not connect 😿'}
+}
+
+function analyze(){
+  if(!pend.length)return{err:'Place some tiles first.'};
+  const T=G.b.slice();pend.forEach(p=>T[p.r*15+p.c]=p.ch);
+  const pm=new Set(pend.map(p=>p.r*15+p.c));
+  const rows=new Set(pend.map(p=>p.r)),cols=new Set(pend.map(p=>p.c));
+  if(rows.size>1&&cols.size>1)return{err:'Tiles must be in a single row or column.'};
+  const word=(r,c,dr,dc)=>{while(r>=dr&&c>=dc&&T[(r-dr)*15+c-dc]){r-=dr;c-=dc}
+    const cells=[];while(r<15&&c<15&&T[r*15+c]){cells.push(r*15+c);r+=dr;c+=dc}return cells};
+  let dr=0,dc=1;if(cols.size===1&&rows.size>1){dr=1;dc=0}
+  const f=pend[0];let main=word(f.r,f.c,dr,dc);
+  if(pend.length===1&&main.length<2){[dr,dc]=[dc,dr];main=word(f.r,f.c,dr,dc)}
+  if(main.length<2)return{err:'A word needs at least 2 letters.'};
+  if(!pend.every(p=>main.includes(p.r*15+p.c)))return{err:'Tiles must form one unbroken line.'};
+  const words=[main];
+  pend.forEach(p=>{const w=word(p.r,p.c,dc,dr);if(w.length>1)words.push(w)});
+  const first=G.b.every(x=>!x);
+  if(first){if(!pm.has(112))return{err:'The first word must cover the centre star.'}}
+  else if(!words.some(w=>w.some(i=>!pm.has(i))))return{err:'Your word must connect to tiles already on the board.'};
+  let total=0;
+  words.forEach(w=>{let s=0,m=1;w.forEach(i=>{let v=pt(T[i]);if(pm.has(i)){const k=P[i];if(k==='DL')v*=2;if(k==='TL')v*=3;if(k==='DW')m*=2;if(k==='TW')m*=3}s+=v});total+=s*m});
+  if(pend.length===7)total+=50;
+  return{total,cells:[...new Set(words.flat())],words:words.map(w=>w.map(i=>T[i].toUpperCase()).join(''))};
+}
+
+function finish(g){
+  g.over=true;const v=r=>r.reduce((a,c)=>a+(PTS[c]||0),0);
+  const out=g.r.findIndex(r=>!r.length);
+  g.sc[0]-=v(g.r[0]);g.sc[1]-=v(g.r[1]);
+  if(out>-1)g.sc[out]+=v(g.r[0])+v(g.r[1]);
+  g.log.push('Game over. Leftover tiles counted.');
+}
+
+async function doPlay(){
+  if(G.t!==me||G.over)return;
+  const a=analyze();if(a.err)return setMsg(a.err);
+  const before=snap0(G),g=JSON.parse(JSON.stringify(G));
+  pend.forEach(p=>g.b[p.r*15+p.c]=p.ch);
+  const usedK=new Set(pend.map(p=>p.k));
+  g.r[me]=g.r[me].filter((_,k)=>!usedK.has(k));
+  g.r[me].push(...g.bag.splice(0,7-g.r[me].length));
+  g.sc[me]+=a.total;g.ps=0;g.t=1-me;
+  g.log.push(`${g.n[me]}: ${a.words.join(', ')} (+${a.total})`);
+  g.lastBy=me;g.last=pend.map(p=>p.r*15+p.c);g.bingo=pend.length===7;g.hook=G.lastBy===1-me&&!!G.last&&a.cells.some(i=>G.last.includes(i));
+  g.prev=before;
+  if(!g.r[me].length&&!g.bag.length)finish(g);
+  setMsg('');await save(g);
+}
+async function doPass(){
+  if(G.t!==me||G.over)return;
+  const before=snap0(G),g=JSON.parse(JSON.stringify(G));
+  g.ps++;g.t=1-me;g.log.push(`${g.n[me]} passed.`);g.prev=before;g.last=null;g.lastBy=me;g.bingo=g.hook=false;
+  if(g.ps>=4)finish(g);
+  pend=[];await save(g);
+}
+async function doSwap(){
+  if(G.t!==me||G.over)return;
+  if(G.bag.length<7)return setMsg('Need at least 7 tiles in the bag to swap.');
+  const before=snap0(G),g=JSON.parse(JSON.stringify(G));
+  g.bag.push(...g.r[me]);shuffle(g.bag);g.r[me]=g.bag.splice(0,7);
+  g.ps++;g.t=1-me;g.log.push(`${g.n[me]} swapped tiles.`);g.prev=before;g.last=null;g.lastBy=me;g.bingo=g.hook=false;
+  pend=[];await save(g);
+}
+async function doUndo(){
+  if(!G.prev)return setMsg('Nothing to undo.');
+  const g=JSON.parse(G.prev);g.prev=null;g.log.push('Last move was undone.');pend=[];await save(g,'undo');
+}
+
+function boardClick(i){
+  if(G.t!==me||G.over)return;
+  const ex=pend.findIndex(p=>p.r*15+p.c===i);
+  if(ex>-1){pend.splice(ex,1);return render()}
+  if(G.b[i])return;
+  if(sel===null)return setMsg('Pick a tile from your rack first.');
+  const ch=G.r[me][sel],r=Math.floor(i/15),c=i%15;
+  if(ch==='?'){blankFor={k:sel,r,c};sel=null;return render()}
+  pend.push({k:sel,r,c,ch});sel=null;setMsg('');render();
+}
+
+function render(){
+  if(!G)return;
+  const opp=1-me,myTurn=G.t===me&&!G.over&&!!G.n[1];
+  $('sb').innerHTML=[0,1].map(i=>`<div class="${G.t===i&&!G.over?'on':''}">${esc(G.n[i]||'…')}${i===me?' (you)':''}<span class="tm" id="tm${i}"></span><b>${G.sc[i]}</b></div>`).join('');
+  tick();let st;
+  if(G.over){const w=winner(G);st=w<0?"Game over: it's a tie! 💫":`Game over: ${esc(G.n[w])} wins!${G.timeup!=null?' (time ran out ⏰)':''} 🎉`}
+  else if(!G.n[1])st=`Waiting for your partner. Room code: “${esc(code)}”`;
+  else st=myTurn?'Your turn':`Waiting for ${esc(G.n[opp])}…`;
+  $('st').innerHTML=st;
+  let h='';
+  for(let i=0;i<225;i++){
+    const pd=pend.find(p=>p.r*15+p.c===i),ch=pd?pd.ch:G.b[i],k=P[i]||'';
+    h+=`<div class="c ${k} ${ch?'t':''} ${pd?'pd':''} ${ch&&ch===ch.toLowerCase()?'bl':''}" data-i="${i}">${ch?ch.toUpperCase()+(pt(ch)?`<sub>${pt(ch)}</sub>`:''):(i===112?'★':k)}</div>`;
+  }
+  $('bd').innerHTML=h;
+  const used=new Set(pend.map(p=>p.k));
+  $('rk').innerHTML=G.r[me].map((ch,k)=>used.has(k)||(blankFor&&blankFor.k===k)?'':`<div class="rt ${sel===k?'sel':''}" data-k="${k}">${ch==='?'?'':ch}${ch==='?'?'':`<sub>${PTS[ch]}</sub>`}</div>`).join('');
+  $('bl').hidden=!blankFor;
+  if(blankFor)$('bl').innerHTML='<b style="width:100%;text-align:center">Blank tile: pick a letter</b>'+'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('').map(l=>`<button data-l="${l}">${l}</button>`).join('')+'<button data-l="">Cancel</button>';
+  ['play','recall','shuf','swap','pass'].forEach(id=>$(id).disabled=!myTurn);
+  $('undo').disabled=!G.prev;$('again').hidden=!G.over;
+  $('bag').textContent=`${G.bag.length} tiles in bag · ${G.n[opp]||'partner'} has ${G.r[opp].length}`;
+  $('log').innerHTML=G.log.slice(-8).reverse().map(l=>`<li>${esc(l)}</li>`).join('');
+  if(myTurn&&pend.length){const a=analyze();setMsg(a.err?'':`Preview: ${a.words.join(', ')} = ${a.total} pts`)}
+}
+
+const winner=g=>g.timeup!=null?1-g.timeup:g.sc[0]===g.sc[1]?-1:g.sc[0]>g.sc[1]?0:1;
+const M={join:["Your babe just hopped in! Let's gooo 💜","Player 2 has arrived, time to play~ ✨"],
+hook:["Ooh, you built right on their word 😏","Sneaky hook! Somebody's gonna pout 🥺"],
+bingo:["ALL 7 TILES?! Sparkly genius ✨💜"],big:["Big brain points! Jigglypuff is singing for you 🎤","Ka-ching, that was a big one! ⭐"],
+small:["Tiny move, big plans… right? 🌸"],theirbingo:["Uh oh, they used ALL their tiles 😳"],
+losing:["A little behind… Gengar says comeback time 👻","Deep breath cutie, you got this 🫶"],theirbig:["Ouch, that was a juicy one 😮"],
+winning:["You're ahead! Don't get too smug 😌💅","Leading! Gengar approves 😈"],hurry:["Tick tock, your clock is getting low ⏰","Hurry hurry, cutie! ⏳"],
+win:["YOU WON! Victory dance time 💃💜"],lose:["Aww, lost this one… you're still the cutest 🍰"],tie:["A perfect tie?! Cosmic 💫"]};
+function say(k){const a=M[k];if(!a)return;const t=$('toast');t.innerHTML=`<svg viewBox="0 0 64 64"><use href="#${Math.random()<.5?'jp':'gg'}"/></svg><span>${a[Math.floor(Math.random()*a.length)]}</span>`;t.classList.add('on');clearTimeout(say.h);say.h=setTimeout(()=>t.classList.remove('on'),4200)}
+function react(o,g){
+  if(!o)return;
+  if(!o.n[1]&&g.n[1]&&me===0)return say('join');
+  if(g.over&&!o.over){const w=winner(g);return say(w<0?'tie':w===me?'win':'lose')}
+  if(g.v===o.v||!g.last)return;
+  const by=g.lastBy,d=g.sc[me]-g.sc[1-me],gain=g.sc[by]-o.sc[by],r=Math.random();
+  if(by===me){if(g.hook)say('hook');else if(g.bingo)say('bingo');else if(gain>=30)say('big');else if(gain<=5&&r<.6)say('small')}
+  else{if(g.bingo)say('theirbingo');else if(d<=-40&&r<.7)say('losing');else if(gain>=30)say('theirbig');else if(d>=40&&r<.6)say('winning')}
+}
+const left=i=>G.rem[i]-((G.ts&&!G.over&&G.t===i)?Date.now()+off-G.ts:0);
+const fmt=ms=>{ms=Math.max(0,Math.ceil(ms/1000));return Math.floor(ms/60)+':'+String(ms%60).padStart(2,'0')};
+function tick(){
+  if(!G)return;
+  [0,1].forEach(i=>{const e=$('tm'+i);if(!e)return;const l=left(i);e.textContent='⏱ '+fmt(l);e.className='tm'+(l<60000&&!G.over&&G.ts?' low':'')});
+  if(!G.over&&G.ts&&left(G.t)<=0&&!tmo){tmo=1;act('timeout').finally(()=>setTimeout(()=>tmo=0,3000))}
+  if(!G.over&&G.ts&&G.t===me&&left(me)<60000&&warned!==G.v){warned=G.v;say('hurry')}
+}
+setInterval(tick,250);
+$('bgart').innerHTML=[[4,6],[80,4],[88,30],[2,40],[14,70],[76,62],[50,88],[90,84],[30,20],[62,44]].map((p,i)=>`<svg style="left:${p[0]}%;top:${p[1]}%;animation-delay:${i*.6}s;width:${i%3?46:64}px;height:${i%3?46:64}px"><use href="#${i%2?'gg':'jp'}"/></svg>`).join('');
+$('again').onclick=()=>act('init',newGame(''));
+$('ac').value=ls.get('ac')||'';
+$('go').onclick=join;
+$('bd').onclick=e=>{const c=e.target.closest('.c');if(c)boardClick(+c.dataset.i)};
+$('rk').onclick=e=>{const t=e.target.closest('.rt');if(!t||G.t!==me)return;const k=+t.dataset.k;sel=sel===k?null:k;render()};
+$('bl').onclick=e=>{const b=e.target.closest('button');if(!b||!blankFor)return;
+  if(b.dataset.l)pend.push({k:blankFor.k,r:blankFor.r,c:blankFor.c,ch:b.dataset.l.toLowerCase()});
+  blankFor=null;render()};
+$('play').onclick=doPlay;$('pass').onclick=doPass;$('swap').onclick=doSwap;$('undo').onclick=doUndo;
+$('recall').onclick=()=>{pend=[];sel=null;setMsg('');render()};
+$('shuf').onclick=()=>{if(pend.length)return setMsg('Recall your tiles before shuffling.');shuffle(G.r[me]);sel=null;render()};
+$('nm').value=ls.get('name')||'';$('rc').value=ls.get('code')||'';
+</script></body></html>
